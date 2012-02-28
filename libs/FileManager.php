@@ -15,12 +15,12 @@ class FileManager implements FileManagerInterfaces
      */
     private $file;
     
+
     /**
-     *
-     * @var char $mode
-     */
-    private $mode;
-    
+    *
+    * @method __construct
+    * @description contruct the FileManager class, get the mode to "r" because is the mode initial of the construct of the File
+    */
     public function __construct() 
     {
         $this->mode = 'r';
@@ -55,6 +55,7 @@ class FileManager implements FileManagerInterfaces
      * @method delete
      * @description delete the file if the user have permission
      * @void     
+     * @waring if not have permission return a warning
      */
     public function delete() 
     {
@@ -62,33 +63,59 @@ class FileManager implements FileManagerInterfaces
     }
     
     
-    public function read() {
-        
+    public function read() 
+    {
+        $file = $this->file->getContent();
+	if(!empty($file)) {
+	    foreach($file as $line) {
+	    	echo nl2br($line);
+	    }
+	} else {
+	   die('The file was empty');
+	}
     }
 
-    public function save() 
+    /**
+     * 
+     * @method save
+     * @description write or update switch case
+     * @param string $str
+     * @param int $key
+     * @throws Exception 
+     * @return int
+     * 
+     */	
+    public function save($str, $key = null) 
     {
-        
+        if($this->file->isEmpty()) {
+	    return $this->write($str);
+	} else {
+	    if(!is_null($key)) {
+		return $this->update($key, $str);
+	    } else {
+		return $this->write($str);
+	    }
+	}
     }
     
     /**
      * 
      * @method update     
-     * @description update the file in the line indicated 
+     * @description update the file in the line indicated, return true if is done and false if not done
      * @param int $key
      * @param string $line
      * @throws Exception 
+     * @return int
      * 
      */
     public function update($key, $line) 
     {
-        $this->file->fseek($key);        
         $arrayFile = $this->file->getContent();
         if(isset($arrayFile[$key])) {
             $arrayFile[$key] = $line;
             $file = implode("\n", $arrayFile);
             $this->changeMode('w');
-            $this->file->fwrite($file);
+            return $this->file->fwrite($file);		
         } else {
             throw new Exception('The line not exist');
         }        
@@ -100,13 +127,13 @@ class FileManager implements FileManagerInterfaces
      * @description add a new line in the file
      * @param String $str
      * @throws Exception 
-     * 
+     * @return int
      */
     public function addNewLine($str)
     {
         if($this->file->isWritable()) {
-            if('a' == $this->mode) {
-                $this->file->fwrite("\n" .$str);
+            if('a' == $this->file->getModeOpen()) {
+		 return $this->file->fwrite("\n" .$str);
             } else {
                 throw new Exception('the mode must be a');
             }
@@ -119,12 +146,13 @@ class FileManager implements FileManagerInterfaces
      * @method write
      * @desc write a new content in the file, this method truncate the file and write a new content
      * @param string $line
+     * @return int
      * @throws Exception if the file is not writable
      */
     public function write($line) 
     {        
         if($this->file->isWritable()) {            
-            if('w' == $this->mode) {
+            if('w' == $this->file->getModeOpen()) {
                 return $this->file->fwrite($line);
             } else {
                 die('the mode must be w');
@@ -136,15 +164,15 @@ class FileManager implements FileManagerInterfaces
     }    
     
     /**
-     * 
+     *  
      * @method changeMode
      * @description change the mode in that the file is opened
      * @param char $mode 
      */
     public function changeMode($mode)
     {        
-        $this->mode = $mode;
+        $this->file->setOpenMode($mode);
         $this->file = $this->file->openFile($mode);                
-    }
-    
+	return $this;
+    }    
 }

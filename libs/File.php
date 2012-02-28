@@ -32,17 +32,26 @@ class File extends SplFileObject
      * @var int
      */
     private $permission;
+
+     /**
+     *
+     * @var char $modeOpen
+     */
+    private $openMode;
+
+
     
     /**
      * @override
      * @param string $file_name
      * @param string $open_mode
      * @param string $use_include_path
-     * @param string $context 
+     * @param array $context 
      * 
      */
-    public function __construct($file_name, $open_mode = 'r', $use_include_path = false, $context = array()) {
+    public function __construct($file_name, $open_mode = 'r', $use_include_path = false, array $context = array()) {
         parent::__construct($file_name, $open_mode, $use_include_path, stream_context_create($context));        
+	$this->openMode = $open_mode;
     }
 
         /**
@@ -91,4 +100,42 @@ class File extends SplFileObject
     {
        return $this->getPerms();
     }
+
+    /**
+     *
+     * @param char $openMode
+     */
+    public function setOpenMode($openMode)
+    {
+       $this->openMode = $openMode;
+       return $this;
+    }
+
+    /**
+     *
+     * Getter modeOpen
+     * @return char
+     */
+    public function getOpenMode($openMode)
+    {
+       return $this->openMode;
+    }
+
+    /**
+     *
+     * @method isEmpty
+     * @description if is empty return true, else return false
+     * @return bool
+     */
+    public function isEmpty()
+    {
+	$lineLength = count($this->getContent());
+	if($lineLength == 0) {
+	    return true;
+ 	} else {
+	    return false;
+	}
+    }
+
+
 }

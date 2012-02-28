@@ -25,7 +25,6 @@ interface FileManagerInterfaces
     /**
      * 
      * @method delete the file 
-     * @param String $file
      * 
      */
     public function delete();
@@ -33,7 +32,8 @@ interface FileManagerInterfaces
     /**
      * 
      * @method update the file 
-     * @param integer $line the line of edit
+     * @param integer $key the line of edit
+     * @param String $line the line of edit	
      *      
      */
     public function update($key, $line);
@@ -42,7 +42,7 @@ interface FileManagerInterfaces
      * 
      * @method save for write or update the file     
      */
-    public function save();
+    public function save($str, $key = null);
 }
 
 ?>
