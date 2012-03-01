@@ -34,12 +34,10 @@ class FileManager implements FileManagerInterfaces
      */
     public function setFile(File $file)
     {        
-        if($file->isFile()) {
-            $this->file = $file;
-        } else {
-            throw new Exception('the file is not valid');
-        }
-        return $this;        
+        if(!$file->isFile()) {
+            throw new Exception('the file is not valid');            
+        } 
+        $this->file = $file;
     }
     
     /**
@@ -65,14 +63,13 @@ class FileManager implements FileManagerInterfaces
     
     public function read() 
     {
-        $file = $this->file->getContent();
-	if(!empty($file)) {
-	    foreach($file as $line) {
-	    	echo nl2br($line);
-	    }
-	} else {
-	   die('The file was empty');
-	}
+       $file = $this->file->getContent();
+	   if(empty($file)) {
+	       throw new Exception("The file was empty");               
+	   } 
+       foreach($file as $line) {
+           echo nl2br($line);
+       }
     }
 
     /**
@@ -87,15 +84,15 @@ class FileManager implements FileManagerInterfaces
      */	
     public function save($str, $key = null) 
     {
-        if($this->file->isEmpty()) {
-	    return $this->write($str);
-	} else {
-	    if(!is_null($key)) {
-		return $this->update($key, $str);
-	    } else {
-		return $this->write($str);
-	    }
-	}
+       if($this->file->isEmpty()) {
+	       return $this->write($str);
+	   } else {
+	       if(!is_null($key)) {
+		      return $this->update($key, $str);
+	       } else {
+		      return $this->write($str);
+    	    }
+	   }
     }
     
     /**
@@ -111,14 +108,13 @@ class FileManager implements FileManagerInterfaces
     public function update($key, $line) 
     {
         $arrayFile = $this->file->getContent();
-        if(isset($arrayFile[$key])) {
-            $arrayFile[$key] = $line;
-            $file = implode("\n", $arrayFile);
-            $this->changeMode('w');
-            return $this->file->fwrite($file);		
-        } else {
-            throw new Exception('The line not exist');
-        }        
+        if(!isset($arrayFile[$key])) {
+            throw new Exception('The line not exist');            
+        } 
+        $arrayFile[$key] = $line;
+        $file = implode("\n", $arrayFile);
+        $this->changeMode('w');
+        return $this->file->fwrite($file);      
     }
     
     /**
@@ -131,16 +127,15 @@ class FileManager implements FileManagerInterfaces
      */
     public function addNewLine($str)
     {
-        if($this->file->isWritable()) {
-            if('a' == $this->file->getModeOpen()) {
-		 return $this->file->fwrite("\n" .$str);
-            } else {
-                throw new Exception('the mode must be a');
-            }
-        } else {
-            throw new Exception('The file is not writable');
+        if(!$this->file->isWritable()) {
+            throw new Exception('The file is not writable');    
         }
+        if('a' != $this->file->getModeOpen()) {                
+            throw new Exception('the mode must be a');
+        }        
+        return $this->file->fwrite("\n" . $str);
     }
+
 
     /**
      * @method write
@@ -151,16 +146,15 @@ class FileManager implements FileManagerInterfaces
      */
     public function write($line) 
     {        
-        if($this->file->isWritable()) {            
-            if('w' == $this->file->getModeOpen()) {
-                return $this->file->fwrite($line);
-            } else {
-                die('the mode must be w');
-            }
-        } else {
+        if(!$this->file->isWritable()) {
             throw new Exception('The file is not writable');
+            
         }
-        return $this;
+        if('w' != $this->file->getModeOpen()) {
+            throw new Exception('The mode must be w');
+            
+        }
+        return $this->file->fwrite($line);        
     }    
     
     /**
@@ -171,8 +165,8 @@ class FileManager implements FileManagerInterfaces
      */
     public function changeMode($mode)
     {        
-        $this->file->setOpenMode($mode);
-        $this->file = $this->file->openFile($mode);                
-	return $this;
+       $this->file->setOpenMode($mode);
+       $this->file = $this->file->openFile($mode);                
+	   return $this;
     }    
 }
