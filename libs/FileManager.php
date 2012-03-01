@@ -1,11 +1,15 @@
 <?php
+namespace FileManager\Libs;
 require_once 'FileManagerInterface.php';
 require_once 'File.php';
+require_once 'FileManagerException.php';
+
 /**
  * Class FileManager for manager the file
  *
  * @author Carlos Belisario <carlos.belisario.gonzalez@gmail.com>
  * @version 1.0 
+ * @copyright Carlos Belisario 
  */
 class FileManager implements FileManagerInterfaces
 {
@@ -35,7 +39,7 @@ class FileManager implements FileManagerInterfaces
     public function setFile(File $file)
     {        
         if(!$file->isFile()) {
-            throw new Exception('the file is not valid');            
+            throw new FileManagerExecption('the file is not valid');            
         } 
         $this->file = $file;
     }
@@ -57,6 +61,9 @@ class FileManager implements FileManagerInterfaces
      */
     public function delete() 
     {
+        if(!$this->file->isWritable()) {
+            throw new FileManagerExecption('Permission denied The File is not writable');
+        }
         unlink($this->file->getRealPath());
     }
     
@@ -65,7 +72,7 @@ class FileManager implements FileManagerInterfaces
     {
        $file = $this->file->getContent();
 	   if(empty($file)) {
-	       throw new Exception("The file was empty");               
+	       throw new FileManagerExecption("The file was empty");               
 	   } 
        foreach($file as $line) {
            echo nl2br($line);
@@ -109,7 +116,7 @@ class FileManager implements FileManagerInterfaces
     {
         $arrayFile = $this->file->getContent();
         if(!isset($arrayFile[$key])) {
-            throw new Exception('The line not exist');            
+            throw new FileManagerExecption('The line not exist');            
         } 
         $arrayFile[$key] = $line;
         $file = implode("\n", $arrayFile);
@@ -128,10 +135,10 @@ class FileManager implements FileManagerInterfaces
     public function addNewLine($str)
     {
         if(!$this->file->isWritable()) {
-            throw new Exception('The file is not writable');    
+            throw new FileManagerExecption('The file is not writable');    
         }
         if('a' != $this->file->getModeOpen()) {                
-            throw new Exception('the mode must be a');
+            throw new FileManagerExecption('the mode must be a');
         }        
         return $this->file->fwrite("\n" . $str);
     }
@@ -147,11 +154,11 @@ class FileManager implements FileManagerInterfaces
     public function write($line) 
     {        
         if(!$this->file->isWritable()) {
-            throw new Exception('The file is not writable');
+            throw new FileManagerExecption('The file is not writable');
             
         }
         if('w' != $this->file->getModeOpen()) {
-            throw new Exception('The mode must be w');
+            throw new FileManagerExecption('The mode must be w');
             
         }
         return $this->file->fwrite($line);        
@@ -167,6 +174,6 @@ class FileManager implements FileManagerInterfaces
     {        
        $this->file->setOpenMode($mode);
        $this->file = $this->file->openFile($mode);                
-	   return $this;
+       return $this;
     }    
 }

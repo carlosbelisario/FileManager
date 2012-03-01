@@ -1,4 +1,5 @@
 <?php
+namespace FileManager\Libs;
 
 /**
  * class File
@@ -7,7 +8,7 @@
  * @version 1.0
  * @copyright Carlos Belisario 
  */
-class File extends SplFileObject
+class File extends \SplFileObject
 {
     /**
      *

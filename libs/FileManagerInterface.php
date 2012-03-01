@@ -1,9 +1,11 @@
 <?php
+namespace FileManager\Libs;
 
 /**
  * Interface for the manage the file
  * @author Carlos Belisario <carlos.belisario.gonzalez@gmail.com>
  * @version 1.0
+ * @copyright Carlos Belisario 
  */
 interface FileManagerInterfaces
 {
