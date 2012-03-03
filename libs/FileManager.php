@@ -4,6 +4,9 @@ require_once 'FileManagerInterface.php';
 require_once 'File.php';
 require_once 'FileManagerException.php';
 
+use FileManagerInterface;
+use FileManagerException;
+use FileManager\Libs\File;
 /**
  * Class FileManager for manager the file
  *
@@ -39,7 +42,7 @@ class FileManager implements FileManagerInterfaces
     public function setFile(File $file)
     {        
         if(!$file->isFile()) {
-            throw new FileManagerExecption('the file is not valid');            
+            throw new FileManagerException('the file is not valid');            
         } 
         $this->file = $file;
     }
@@ -62,21 +65,26 @@ class FileManager implements FileManagerInterfaces
     public function delete() 
     {
         if(!$this->file->isWritable()) {
-            throw new FileManagerExecption('Permission denied The File is not writable');
+            throw new FileManagerException('Permission denied The File is not writable');
         }
         unlink($this->file->getRealPath());
     }
     
-    
+    /**
+    *
+    * @method read
+    * @description this method return all content of a file in a array
+    * @param void
+    * @return array
+    * @throw FileManagerException if the file is empty
+    */
     public function read() 
     {
-       $file = $this->file->getContent();
-	   if(empty($file)) {
-	       throw new FileManagerExecption("The file was empty");               
+       $arrayFileContent = $this->file->getContent();
+	   if($this->file->isEmpty()) {
+	       throw new FileManagerException("The file was empty");               
 	   } 
-       foreach($file as $line) {
-           echo nl2br($line);
-       }
+       return $arrayFileContent;
     }
 
     /**
@@ -84,8 +92,7 @@ class FileManager implements FileManagerInterfaces
      * @method save
      * @description write or update switch case
      * @param string $str
-     * @param int $key
-     * @throws Exception 
+     * @param int $key     
      * @return int
      * 
      */	
@@ -108,7 +115,7 @@ class FileManager implements FileManagerInterfaces
      * @description update the file in the line indicated, return true if is done and false if not done
      * @param int $key
      * @param string $line
-     * @throws Exception 
+     * @throws FileManagerException if the line does not exist 
      * @return int
      * 
      */
@@ -129,16 +136,16 @@ class FileManager implements FileManagerInterfaces
      * @method addNewLine
      * @description add a new line in the file
      * @param String $str
-     * @throws Exception 
+     * @throws FileManagerException if the file does not is writable or the open mode not is a
      * @return int
      */
     public function addNewLine($str)
     {
         if(!$this->file->isWritable()) {
-            throw new FileManagerExecption('The file is not writable');    
+            throw new FileManagerException('The file is not writable');    
         }
         if('a' != $this->file->getModeOpen()) {                
-            throw new FileManagerExecption('the mode must be a');
+            throw new FileManagerException('the mode must be a');
         }        
         return $this->file->fwrite("\n" . $str);
     }
@@ -149,16 +156,16 @@ class FileManager implements FileManagerInterfaces
      * @desc write a new content in the file, this method truncate the file and write a new content
      * @param string $line
      * @return int
-     * @throws Exception if the file is not writable
+     * @throws FileManagerException if the file is not writable or if the open mode not is w
      */
     public function write($line) 
     {        
         if(!$this->file->isWritable()) {
-            throw new FileManagerExecption('The file is not writable');
+            throw new FileManagerException('The file is not writable');
             
         }
         if('w' != $this->file->getModeOpen()) {
-            throw new FileManagerExecption('The mode must be w');
+            throw new FileManagerException('The mode must be w');
             
         }
         return $this->file->fwrite($line);        
@@ -176,4 +183,40 @@ class FileManager implements FileManagerInterfaces
        $this->file = $this->file->openFile($mode);                
        return $this;
     }    
+
+    /**
+    *
+    * @method findLine
+    * @description this method return the content of the line indicated in the param
+    * @param int $line
+    * @return String
+    * @throw FileManagerExeption is the line does not exist in the content of the file
+    */
+
+    public function findLine($line)
+    {
+        try {
+            $content = $this->file->getContent();
+            return $content[$line];
+        } catch(FileManagerException $e) {
+            $e->getMessage();
+        }
+    }    
+    
+    /**
+     * @method firstLineFields
+     * @description say if the first line of the file is the container of the fields     * 
+     * @param boolean $isFields
+     * @return boolean 
+     */
+    public function firstLineFields()
+    {
+        if($this->file->getFirstLineIsFields()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+   
 }

@@ -8,4 +8,4 @@ namespace FileManager\Libs;
  * @version 1.0 
  * @copyright Carlos Belisario 
  */
-class FileManagerExecption extends \Exception {}
+class FileManagerException extends \Exception {}

@@ -20,13 +20,7 @@ class File extends \SplFileObject
      *
      * @var array
      */
-    private $content;
-    
-    /**
-     *
-     * @var String 
-     */
-    private $line;
+    private $content;    
     
     /**
      *
@@ -39,23 +33,38 @@ class File extends \SplFileObject
      * @var char $modeOpen
      */
     private $openMode;
-
-
     
+    /**
+     *
+     * @var boolean $firstLineIsFields
+     */
+    private $firstLineIsFields;
+
     /**
      * @override
      * @param string $file_name
      * @param string $open_mode
-     * @param string $use_include_path
+     * @param string $use_include_path     
      * @param array $context 
+     * @param boolean $firstLineIsFields
      * 
      */
-    public function __construct($file_name, $open_mode = 'r', $use_include_path = false, array $context = array()) {
+    public function __construct($file_name, $open_mode = 'r', $use_include_path = false, array $context = array(), $firstLineIsFields = true) {
         parent::__construct($file_name, $open_mode, $use_include_path, stream_context_create($context));        
-	$this->openMode = $open_mode;
+	$this->openMode = $open_mode;        
+        $this->firstLineIsFields = $firstLineIsFields;
+    }
+    
+    /**
+     * Getter $firstLineIsFields
+     * @return boolean 
+     */
+    public function getFirstLineIsFields() 
+    {        
+        return $this->firstLineIsFields;
     }
 
-        /**
+    /**
      *
      * @return string 
      */
@@ -79,24 +88,12 @@ class File extends \SplFileObject
         return $this->content;
     }    
 
-    /**
-     *
-     * @return integer 
-     */
-    public function getLine() 
-    {
-        return $this->key();
-    }
-
-    /**
-     *
-     * @param integer $line 
-     */
-    public function setLine($line) 
-    {
-        $this->line = $line;
-    }    
     
+    
+    /**
+     *
+     * @return int
+     */
     public function getPermission()
     {
        return $this->getPerms();
@@ -125,18 +122,30 @@ class File extends \SplFileObject
     /**
      *
      * @method isEmpty
-     * @description if is empty return true, else return false
+     * @description if the content of the file is empty return true, else return false
      * @return bool
      */
     public function isEmpty()
     {
-	$lineLength = count($this->getContent());
-	if($lineLength == 0) {
-	    return true;
- 	} else {
-	    return false;
-	}
+	  $lineLength = count($this->getContent());
+	  if($lineLength == 0) {
+	       return true;
+ 	  } else {
+	     return false;
+	   }
     }
-
+    /**
+     * @method getFileName     
+     * @param bool $returnPath
+     * @return string 
+     */
+    public function getFileName($returnPath = true)
+    {
+        if($returnPath) {
+            return $this->getRealPath();
+        } else {
+            return $this->getBasename();
+        }
+    }    
 
 }
