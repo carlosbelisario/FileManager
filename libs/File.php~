@@ -162,3 +162,8 @@ class File extends \SplFileObject
     }    
 
 }
+
+$f = new File('archivo.txt');
+while(!$f->eof()) {
+	echo "<pre>";print_r($f->fgetcsv());echo "</pre>";
+}

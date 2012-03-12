@@ -34,7 +34,18 @@ class FileManager implements FileManagerInterfaces
      * @var File
      */
     private $file;
+
+    /**
+    *
+    * @var String $fieldDelimiter
+    */
+    private $fieldDelimiter;
     
+    /**
+     *
+     * @var Array
+     */
+    private $fields;
 
     /**
     *
@@ -230,6 +241,73 @@ class FileManager implements FileManagerInterfaces
             return false;
         }
     }
+
+    /**
+    *
+    * @method setFieldDelimiter
+    * @description set the delimiter of the fields 
+    * @param String $delimeiter
+    */
+    public function setFieldDelimiter($delimiter)
+    {
+        $this->fieldDelimiter = $delimiter;
+        return $this;
+    }
     
-   
+    /**
+    *
+    * @return String FieldDelimiter
+    */
+    public function getFieldsDelimiter()
+    {
+        return $this->fieldDelimiter;
+    }
+    
+    /**
+     * @method setFields
+     * @description Set the fields name
+     * @param array $fields
+     * @return \FileManager\Libs\FileManager 
+     * @throws FileManagerException is the first line containt the fields
+     */
+    public function setFields(array $fields) {
+        if($this->firstLineFields()) {
+            throw new \FileManager\Libs\FileManagerException('The first line containt the fields of the file');
+        } 
+        $this->fields = $fields;
+        return $this;
+    }
+    
+    /**
+     * @method getFields get the fields name
+     * @method getFields
+     * @return Array
+     */
+    public function getFields()
+    {        
+        if($this->firstLineFields()) {      
+            $delimiter = $this->getFieldsDelimiter();
+            if(empty($delimiter)) {
+                throw new \FileManager\Libs\FileManagerException('the delimiter is empty');
+            }
+            $fields = explode($this->getFieldsDelimiter(),$this->findLine(0));
+            return $fields;
+        } else {
+            return $this->fields;
+        }        
+    }
+    
+    /**
+     * @method getKeyFields get a array with the fields key
+     * @return array
+     */
+    public function getKeyFields() 
+    {
+        $fields = $this->getFields();
+        foreach($fields as $k => $v) {
+            $keyFields[$v] = $k;
+        }
+        return $keyFields;
+    }    
+    
 }
